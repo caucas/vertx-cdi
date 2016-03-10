@@ -1,5 +1,6 @@
 package cc.caucas.vertx.cdi;
 
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import rx.Observable;
@@ -28,9 +29,17 @@ public class VertxLauncher {
     public void initVertx(@Observes @Initialized(ApplicationScoped.class) Object o) {
         this.vertx = Vertx.vertx();
 
-        Observable.from(allDiscoveredVerticles)
-                .subscribe(verticle -> {
-                    vertx.deployVerticle(verticle);
+        vertx.fileSystem()
+                .readFile("src/main/resources/config.json", config -> {
+                    if (config.succeeded()) {
+                        Observable.from(allDiscoveredVerticles)
+                                .subscribe(verticle -> {
+                                    vertx.deployVerticle(verticle,
+                                            new DeploymentOptions().setConfig(config.result().toJsonObject()));
+                                });
+                    } else if (config.failed()) {
+                        throw new RuntimeException("Can't load application config file.", config.cause());
+                    }
                 });
     }
 
