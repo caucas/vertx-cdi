@@ -13,5 +13,7 @@ public interface UserDao {
 
     Observable<String> allRaw();
     Observable<List<User>> all();
+    Observable<String> getRaw(String login);
+    Observable<User> get(String login);
 
 }

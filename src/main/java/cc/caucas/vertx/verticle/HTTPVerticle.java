@@ -5,6 +5,8 @@ import io.vertx.core.json.Json;
 import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.http.HttpServer;
+import io.vertx.rxjava.core.http.HttpServerRequest;
+import rx.functions.Action1;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,15 +25,15 @@ public class HTTPVerticle extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         HttpServer server = vertx.createHttpServer();
-        server.requestStream().toObservable()
-                .subscribe(request -> userDao.allRaw()
-                                .subscribe(data -> {
-                                            request.response().putHeader("Content-Type", "application/json");
-                                            request.response().end(data);
-                                        },
-                                        Throwable::printStackTrace),
-                        Throwable::printStackTrace);
+        server.requestStream().toObservable().subscribe(this::onRequest);
         server.listen(8080);
+    }
+
+    private void onRequest(HttpServerRequest request) {
+        userDao.getRaw("caucas").subscribe(data -> {
+            request.response().putHeader("Content-Type", "application/json");
+            request.response().end(data);
+        });
     }
 
 }

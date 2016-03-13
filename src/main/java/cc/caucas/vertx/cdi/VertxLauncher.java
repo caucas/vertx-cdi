@@ -3,6 +3,7 @@ package cc.caucas.vertx.cdi;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import rx.Observable;
 
 import javax.annotation.PreDestroy;
@@ -32,11 +33,8 @@ public class VertxLauncher {
         vertx.fileSystem()
                 .readFile("src/main/resources/config.json", config -> {
                     if (config.succeeded()) {
-                        Observable.from(allDiscoveredVerticles)
-                                .subscribe(verticle -> {
-                                    vertx.deployVerticle(verticle,
-                                            new DeploymentOptions().setConfig(config.result().toJsonObject()));
-                                });
+                        Observable.from(allDiscoveredVerticles).subscribe(v -> onVerticleDiscovered(v,
+                                config.result().toJsonObject()));
                     } else if (config.failed()) {
                         throw new RuntimeException("Can't load application config file.", config.cause());
                     }
@@ -52,5 +50,10 @@ public class VertxLauncher {
     @PreDestroy
     public void shutdown() {
         this.vertx.close();
+    }
+
+    private void onVerticleDiscovered(Verticle verticle, JsonObject config) {
+        vertx.deployVerticle(verticle,
+                new DeploymentOptions().setConfig(config));
     }
 }
