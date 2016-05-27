@@ -5,9 +5,6 @@ package cc.caucas.vertx.verticle.entity;
  */
 public class User {
 
-    public static final String FIND_ALL = "select * from users";
-    public static final String FIND_BY_ID = "select * from users where login='%s'";
-
     private String login;
     private String name;
     private String surname;

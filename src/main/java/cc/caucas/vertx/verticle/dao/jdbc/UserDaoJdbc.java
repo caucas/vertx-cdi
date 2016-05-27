@@ -15,14 +15,15 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
-import static cc.caucas.vertx.verticle.entity.User.FIND_ALL;
-import static cc.caucas.vertx.verticle.entity.User.FIND_BY_ID;
 
 /**
  * @author Georgy Davityan.
  */
 @ApplicationScoped
 public class UserDaoJdbc implements UserDao {
+
+    public static final String FIND_ALL = "select * from users";
+    public static final String FIND_BY_ID = "select * from users where login='%s'";
 
     @Inject
     private JDBCClient jdbc;
