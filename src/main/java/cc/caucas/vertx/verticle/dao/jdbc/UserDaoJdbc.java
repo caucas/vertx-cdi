@@ -15,7 +15,8 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
-import static cc.caucas.vertx.verticle.entity.User.*;
+import static cc.caucas.vertx.verticle.entity.User.FIND_ALL;
+import static cc.caucas.vertx.verticle.entity.User.FIND_BY_ID;
 
 /**
  * @author Georgy Davityan.
@@ -58,7 +59,10 @@ public class UserDaoJdbc implements UserDao {
     }
 
     private Observable<ResultSet> executeQuery(SQLConnection connection, String query) {
-        return connection.callObservable(query);
+        return Observable.using(
+                () -> connection,
+                resource -> resource.callObservable(query),
+                resource -> resource.close());
     }
 
     private User fromJson(String json) {
